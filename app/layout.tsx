@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/server";
 
+import { headers } from "next/headers";
+
 const geistSans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -14,35 +16,47 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://mylink.vercel.app"),
-  title: "mylink — 모든 링크를 한 곳에",
-  description:
-    "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  let origin = "https://mylink.vercel.app";
+  try {
+    const headersList = await headers();
+    const host = headersList.get("x-forwarded-host") || headersList.get("host");
+    const proto = headersList.get("x-forwarded-proto") || "https";
+    if (host) origin = `${proto}://${host}`;
+  } catch {
+    // Fallback if headers are not available during build
+  }
+
+  return {
+    metadataBase: new URL(origin),
     title: "mylink — 모든 링크를 한 곳에",
     description:
       "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
-    type: "website",
-    locale: "ko_KR",
-    siteName: "mylink",
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 1200,
-        alt: "mylink — 모든 링크를 한 곳에",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "mylink — 모든 링크를 한 곳에",
-    description:
-      "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
-    images: ["/og.png"],
-  },
-};
+    openGraph: {
+      title: "mylink — 모든 링크를 한 곳에",
+      description:
+        "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
+      type: "website",
+      locale: "ko_KR",
+      siteName: "mylink",
+      images: [
+        {
+          url: "/og.png",
+          width: 1200,
+          height: 1200,
+          alt: "mylink — 모든 링크를 한 곳에",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "mylink — 모든 링크를 한 곳에",
+      description:
+        "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
+      images: ["/og.png"],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
