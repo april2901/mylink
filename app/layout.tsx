@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mylink.vercel.app"),
   title: "mylink — 모든 링크를 한 곳에",
   description:
     "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
@@ -25,12 +26,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     siteName: "mylink",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 1200,
+        alt: "mylink — 모든 링크를 한 곳에",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "mylink — 모든 링크를 한 곳에",
     description:
       "나만의 링크 페이지를 만들어 공유하세요. 클릭 통계와 함께 간편하게 링크를 관리합니다.",
+    images: ["/og.png"],
   },
 };
 
