@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { addLink } from "./actions";
+import { isValidUrl } from "@/lib/utils";
 
 export function AddLinkDialog() {
   const [open, setOpen] = useState(false);
@@ -20,8 +21,11 @@ export function AddLinkDialog() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isUrlValid = isValidUrl(url.trim());
+  const showUrlError = url.trim().length > 0 && !isUrlValid;
+
   const handleSubmit = async () => {
-    if (!title.trim() || !url.trim()) return;
+    if (!title.trim() || !url.trim() || !isUrlValid) return;
     setLoading(true);
     try {
       await addLink(title.trim(), url.trim());
@@ -67,12 +71,15 @@ export function AddLinkDialog() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://github.com/username"
-              className="border-white/10 bg-white/5"
+              className={`bg-white/5 ${showUrlError ? "border-red-500/50 focus-visible:ring-red-500/50" : "border-white/10"}`}
             />
+            {showUrlError && (
+              <p className="text-xs text-red-400">올바른 URL 주소 형식을 입력해 주세요 (예: example.com).</p>
+            )}
           </div>
           <Button
             onClick={handleSubmit}
-            disabled={loading || !title.trim() || !url.trim()}
+            disabled={loading || !title.trim() || !url.trim() || !isUrlValid}
             className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500"
           >
             {loading ? "추가 중..." : "추가하기"}

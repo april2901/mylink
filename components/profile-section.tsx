@@ -22,11 +22,25 @@ export function ProfileSection({ profile, isEditable }: ProfileSectionProps) {
   const [bio, setBio] = useState(profile.bio || "");
 
   const handleSaveBio = async () => {
+    if (bio === (profile.bio || "")) {
+      setIsEditingBio(false);
+      return;
+    }
     try {
       await updateProfile(bio);
       setIsEditingBio(false);
     } catch (error) {
       console.error("Failed to update bio:", error);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveBio();
+    } else if (e.key === "Escape") {
+      setIsEditingBio(false);
+      setBio(profile.bio || "");
     }
   };
 
@@ -50,52 +64,35 @@ export function ProfileSection({ profile, isEditable }: ProfileSectionProps) {
       </div>
 
       {/* Bio */}
-      <div className="w-full max-w-md text-center">
+      <div className="w-full max-w-md">
         {isEditable && isEditingBio ? (
-          <div className="space-y-2">
+          <div className="space-y-1 text-center">
             <Textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="소개글을 작성해주세요..."
-              className="min-h-[80px] resize-none border-white/10 bg-white/5 text-center"
+              className="min-h-[80px] resize-none border-white/10 bg-white/5 text-center focus-visible:ring-violet-500/50"
               maxLength={200}
+              autoFocus
+              onBlur={handleSaveBio}
+              onKeyDown={handleKeyDown}
             />
-            <div className="flex justify-center gap-2">
-              <Button
-                size="sm"
-                onClick={handleSaveBio}
-                className="gap-1 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500"
-              >
-                <Check className="h-3 w-3" />
-                저장
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setIsEditingBio(false);
-                  setBio(profile.bio || "");
-                }}
-              >
-                취소
-              </Button>
-            </div>
+            <p className="text-[10px] text-muted-foreground/50 text-right pr-1">
+              빈 곳을 누르거나 Enter로 저장 (줄바꿈: Shift+Enter, 취소: Esc)
+            </p>
           </div>
         ) : (
-          <div className="group relative">
-            <p className="text-sm text-muted-foreground">
-              {profile.bio || (isEditable ? "소개글을 작성해주세요..." : "")}
+          <div 
+            onClick={() => isEditable && setIsEditingBio(true)}
+            className={`group relative text-center ${
+              isEditable 
+                ? "cursor-pointer rounded-xl border border-dashed border-transparent hover:border-white/10 hover:bg-white/5 px-4 py-3 transition-all duration-200" 
+                : ""
+            }`}
+          >
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+              {profile.bio || (isEditable ? "클릭하여 소개글을 입력하세요... ✨" : "")}
             </p>
-            {isEditable && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute -right-8 top-0 h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => setIsEditingBio(true)}
-              >
-                <Pencil className="h-3 w-3" />
-              </Button>
-            )}
           </div>
         )}
       </div>

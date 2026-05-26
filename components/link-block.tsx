@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, ExternalLink, MousePointerClick, Globe } from "lucide-react";
 import { deleteLink, updateLink } from "@/app/manage/actions";
+import { isValidUrl } from "@/lib/utils";
 
 interface Link {
   id: string;
@@ -43,6 +44,9 @@ export function LinkBlock({ link, isOwner }: LinkBlockProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [faviconError, setFaviconError] = useState(!link.url);
 
+  const isEditUrlValid = isValidUrl(editUrl.trim());
+  const showEditUrlError = editUrl.trim().length > 0 && !isEditUrlValid;
+
   const handleClick = async () => {
     if (isOwner) {
       window.open(link.url, "_blank");
@@ -62,8 +66,9 @@ export function LinkBlock({ link, isOwner }: LinkBlockProps) {
   };
 
   const handleUpdate = async () => {
+    if (!editTitle.trim() || !editUrl.trim() || !isEditUrlValid) return;
     try {
-      await updateLink(link.id, editTitle, editUrl);
+      await updateLink(link.id, editTitle.trim(), editUrl.trim());
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update link:", error);
@@ -161,11 +166,15 @@ export function LinkBlock({ link, isOwner }: LinkBlockProps) {
                     value={editUrl}
                     onChange={(e) => setEditUrl(e.target.value)}
                     placeholder="https://example.com"
-                    className="border-white/10 bg-white/5"
+                    className={`bg-white/5 ${showEditUrlError ? "border-red-500/50 focus-visible:ring-red-500/50" : "border-white/10"}`}
                   />
+                  {showEditUrlError && (
+                    <p className="text-xs text-red-400">올바른 URL 주소 형식을 입력해 주세요 (예: example.com).</p>
+                  )}
                 </div>
                 <Button
                   onClick={handleUpdate}
+                  disabled={!editTitle.trim() || !editUrl.trim() || !isEditUrlValid}
                   className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500"
                 >
                   저장

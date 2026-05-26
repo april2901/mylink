@@ -2,8 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { isValidUrl } from "@/lib/utils";
 
 export async function addLink(title: string, url: string) {
+  if (!isValidUrl(url)) throw new Error("올바른 URL 형식이 아닙니다.");
   const supabase = await createClient();
   const {
     data: { user },
@@ -34,6 +36,7 @@ export async function addLink(title: string, url: string) {
 }
 
 export async function updateLink(id: string, title: string, url: string) {
+  if (!isValidUrl(url)) throw new Error("올바른 URL 형식이 아닙니다.");
   const supabase = await createClient();
   const {
     data: { user },
