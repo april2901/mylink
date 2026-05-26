@@ -2,9 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const requestUrl = new URL(request.url);
+  const searchParams = requestUrl.searchParams;
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/manage";
+
+  // Construct secure origin using headers (crucial for Vercel https redirection)
+  const protocol = request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "");
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || requestUrl.host;
+  const origin = `${protocol}://${host}`;
 
   if (code) {
     const supabase = await createClient();
